@@ -79,6 +79,8 @@ class Basic:
             permissions['file']['config-server-owned'][1] = self.vhost_server_gid
             permissions['dir']['config-server-owned'][1]  = self.vhost_server_gid
 
+        permissions['dir']['server-owned-dir'] = permissions['dir']['server-owned']
+
         self.__perm      = permissions
         self.__handler   = handler
         self.__flags     = flags

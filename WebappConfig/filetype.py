@@ -115,6 +115,7 @@ class FileType:
     def __init__(self,
                  config_owned,
                  server_owned,
+                 server_owned_r,
                  virtual_files = 'virtual',
                  default_dirs  = 'default-owned'):
         '''
@@ -149,12 +150,26 @@ class FileType:
 
                 self.__cache[self.__fix(i)] = 'server-owned'
 
+        for i in server_owned_r:
 
-    def filetype(self, filename):
+            if self.__fix(i) in self.__cache.keys():
+
+                OUT.die('A recursive server-owned directory should not be config-protected nor non-recursively server-owned !')
+
+            else :
+
+                OUT.debug('Adding recursively server-owned file', 8)
+
+                self.__cache[self.__fix(i).strip()] = 'server-owned-dir'
+
+
+    def filetype(self, filename, current_type):
         '''
         Inputs:
 
           filename      - the file that we need a decision about
+
+          current_type  - the type of the parent directory
 
         returns one of these:
 
@@ -178,22 +193,35 @@ class FileType:
 
         # look for config-protected files in the cache
         if filename in self.__cache.keys():
+            if current_type == 'server-owned-dir':
+                new_type = self.__cache[filename]
+                if new_type == 'config-owned':
+                    return 'config-server-owned'
+                if new_type == 'server-owned':
+                    OUT.warn('Configuration error: {} is marked server-owned two times'.format(filename))
+                return 'server-owned' 
             return self.__cache[filename]
 
+        if current_type == 'server-owned-dir':
+            return 'server-owned'
         # unspecified file (and thus virtual)
         return self.__virtual_files
 
-    def dirtype(self, directory):
+    def dirtype(self, directory, current_type):
         '''
         Inputs:
 
           directory     - the directory that we need a decision about
+
+          current_type  - the type of the parent directory
 
         returns one of these:
 
           server-owned         - dir needs to be owned by the webserver user
           config-owned         - dir needs to be owned by the config user
           config-server-owned  - Both the previous cases at the same time
+          server-owned-dir     - Directory that contains file/dirs to be owned
+                                 by the webserver user
           default-owned        - we need a local copy, owned by root
 
         NOTE:
@@ -209,8 +237,17 @@ class FileType:
 
         # check the cache
         if directory in self.__cache.keys():
+            if current_type == 'server-owned-dir':
+                new_type = self.__cache[directory]
+                if new_type == 'config-owned':
+                    OUT.die('This version does not support config dirs')
+                if new_type == server-owned:
+                    OUT.warn('Configuration error: {} is marked server-owned two times'.format(filename))
+                return 'server-owned-dir'
             return self.__cache[directory]
 
+        if current_type == 'server-owned-dir':
+            return 'server-owned-dir'
         # unspecified directories are default-owned
         return self.__default_dirs
 

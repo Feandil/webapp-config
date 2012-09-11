@@ -292,6 +292,7 @@ class Config:
             'my_serverconfigdir': '${my_appdir}/conf',
             'wa_configlist'     : '${my_appdir}/config-files',
             'wa_solist'         : '${my_appdir}/server-owned-files',
+            'wa_sodlist'        : '${my_appdir}/server-owned-dirs',
             'wa_virtuallist'    : '${my_appdir}/virtuals',
             'wa_installs'       : '${my_persistdir}/${wa_installsbase}',
             'wa_postinstallinfo':

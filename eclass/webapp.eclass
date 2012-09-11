@@ -83,6 +83,19 @@ webapp_checkfileexists() {
 	fi
 }
 
+webapp_checkdirexists() {
+	debug-print-function $FUNCNAME $*
+
+	local my_prefix=${2:+${2}/}
+
+	if [[ ! -d "${my_prefix}${1}" ]]; then
+		msg="ebuild fault: dir '${1}' not found"
+		eerror "$msg"
+		eerror "Please report this as a bug at http://bugs.gentoo.org/"
+		die "$msg"
+	fi
+}
+
 webapp_check_installedat() {
 	debug-print-function $FUNCNAME $*
 	${WEBAPP_CONFIG} --show-installed -h localhost -d "${INSTALL_DIR}" 2> /dev/null
@@ -244,8 +257,8 @@ _webapp_serverowned() {
 	local my_file="$(webapp_strip_appdir "${1}")"
 	my_file="$(webapp_strip_cwd "${my_file}")"
 
-	elog "(server owned) ${my_file}"
-	echo "${my_file}" >> "${D}/${WA_SOLIST}"
+	elog "(server owned${3}) ${my_file}"
+	echo "${my_file}" >> "${D}/${2}"
 }
 
 # @FUNCTION: webapp_serverowned
@@ -261,14 +274,11 @@ webapp_serverowned() {
 	if [[ "${1}" == "-R" ]]; then
 		shift
 		for m in "$@"; do
-			find "${D}${m}" | while read a; do
-				a=$(webapp_strip_d "${a}")
-				_webapp_serverowned "${a}"
-			done
+			_webapp_serverowned "${m}" "${WA_SODLIST}" "recursively"
 		done
 	else
 		for m in "$@"; do
-			_webapp_serverowned "${m}"
+			_webapp_serverowned "${m}" "${WA_SOLIST}" ""
 		done
 	fi
 }

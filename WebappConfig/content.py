@@ -178,6 +178,7 @@ class Contents:
 
                 if ok and not line_split[2] in ['virtual',
                                                 'server-owned',
+                                                'server-owned-dir',
                                                 'config-owned',
                                                 'default-owned',
                                                 'config-server-owned',

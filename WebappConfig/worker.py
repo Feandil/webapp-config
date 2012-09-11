@@ -173,7 +173,7 @@ class WebappAdd:
 
         os.umask(0)
 
-    def mkdirs(self, directory = ''):
+    def mkdirs(self, directory = '', current_type = ''):
         '''
         Create a set of directories
 
@@ -204,20 +204,20 @@ class WebappAdd:
             OUT.debug('Handling directory', 7)
 
             # create directory first
-            self.mkdir(directory + '/' + i)
+            next_type = self.mkdir(directory + '/' + i, current_type)
 
             # then recurse into the directory
-            self.mkdirs(directory + '/' + i)
+            self.mkdirs(directory + '/' + i, next_type)
 
         for i in self.__ws.get_source_files(sd):
 
             OUT.debug('Handling file', 7)
 
             # handle the file
-            self.mkfile(directory + '/' + i)
+            self.mkfile(directory + '/' + i, current_type)
 
 
-    def mkdir(self, directory):
+    def mkdir(self, directory, current_type):
         '''
         Create a directory with the correct ownership and permissions.
 
@@ -245,7 +245,7 @@ class WebappAdd:
             if not self.__p:
                 os.unlink(dst_dir)
 
-        dirtype = self.__ws.dirtype(src_dir)
+        dirtype = self.__ws.dirtype(src_dir, current_type)
 
         OUT.debug('Checked directory type', 8)
 
@@ -271,7 +271,9 @@ class WebappAdd:
                            directory,
                            self.__relative)
 
-    def mkfile(self, filename):
+        return dirtype
+
+    def mkfile(self, filename, current_type):
         '''
         This is what we are all about.  No more games - lets take a file
         from the master image of the web-based app, and make it available
@@ -284,7 +286,7 @@ class WebappAdd:
         OUT.debug('Creating file', 6)
 
         dst_name  = self.__destd + '/' + filename
-        file_type = self.__ws.filetype(self.__sourced + '/' + filename)
+        file_type = self.__ws.filetype(self.__sourced + '/' + filename, current_type)
 
         OUT.debug('File type determined', 7)
 
@@ -476,3 +478,5 @@ class WebappAdd:
                            filename,
                            dst_name,
                            self.__relative)
+
+        return file_type

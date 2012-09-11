@@ -440,16 +440,18 @@ class WebappSource(AppHierarchy):
         self.ignore = []
 
     def read(self,
-             config_owned  = 'config-files',
-             server_owned  = 'server-owned-files',
-             virtual_files = 'virtual',
-             default_dirs  = 'default-owned'):
+             config_owned    = 'config-files',
+             server_owned    = 'server-owned-files',
+             server_owned_r  = 'server-owned-dirs',
+             virtual_files   = 'virtual',
+             default_dirs    = 'default-owned'):
         '''
         Initialize the type cache.
         '''
         import WebappConfig.filetype
 
         server_files = []
+        server_dirs  = []
         config_files = []
 
         if os.access(self.appdir() + '/' + config_owned, os.R_OK):
@@ -468,26 +470,35 @@ class WebappSource(AppHierarchy):
 
             flist.close()
 
+        if os.access(self.appdir() + '/' + server_owned_r, os.R_OK):
+            flist = open(self.appdir() + '/' + server_owned_r)
+            server_dirs = flist.readlines()
+
+            OUT.debug('Identified server-owned directories.', 7)
+
+            flist.close()
+
         self.__types = WebappConfig.filetype.FileType(config_files,
                                                       server_files,
+                                                      server_dirs,
                                                       virtual_files,
                                                       default_dirs)
 
-    def filetype(self, filename):
+    def filetype(self, filename, current_type):
         ''' Determine filetype for the given file.'''
         if self.__types:
 
             OUT.debug('Returning file type', 7)
 
-            return self.__types.filetype(filename)
+            return self.__types.filetype(filename, current_type)
 
-    def dirtype(self, directory):
+    def dirtype(self, directory, current_type):
         ''' Determine filetype for the given directory.'''
         if self.__types:
 
             OUT.debug('Returning directory type', 7)
 
-            return self.__types.dirtype(directory)
+            return self.__types.dirtype(directory, current_type)
 
     def source_exists(self, directory):
         '''

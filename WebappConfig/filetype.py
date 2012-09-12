@@ -154,7 +154,7 @@ class FileType:
 
             if self.__fix(i) in self.__cache.keys():
 
-                OUT.die('A recursive server-owned directory should not be config-protected nor non-recursively server-owned !')
+                OUT.die('{} is a the same time recursively server-owned and {}: This case is not supported.'.format(self.__fix(i), self.__cache[self.__fix(i)]))
 
             else :
 
@@ -163,13 +163,13 @@ class FileType:
                 self.__cache[self.__fix(i).strip()] = 'server-owned-dir'
 
 
-    def filetype(self, filename, current_type):
+    def filetype(self, filename, parent_type = ''):
         '''
         Inputs:
 
           filename      - the file that we need a decision about
 
-          current_type  - the type of the parent directory
+          parent_type  - the type of the parent directory
 
         returns one of these:
 
@@ -191,29 +191,31 @@ class FileType:
         # remove any whitespace and trailing /
         filename = self.__fix(filename)
 
-        # look for config-protected files in the cache
+        # check the cache
         if filename in self.__cache.keys():
-            if current_type == 'server-owned-dir':
+            # Check if parent type is recursive
+            if parent_type == 'server-owned-dir':
                 new_type = self.__cache[filename]
                 if new_type == 'config-owned':
                     return 'config-server-owned'
                 if new_type == 'server-owned':
-                    OUT.warn('Configuration error: {} is marked server-owned two times'.format(filename))
+                    OUT.warn('Configuration error: {} is marked server-owned twice'.format(filename))
                 return 'server-owned' 
             return self.__cache[filename]
 
-        if current_type == 'server-owned-dir':
+        # Check if parent type is recursive
+        if parent_type == 'server-owned-dir':
             return 'server-owned'
         # unspecified file (and thus virtual)
         return self.__virtual_files
 
-    def dirtype(self, directory, current_type):
+    def dirtype(self, directory, parent_type = ''):
         '''
         Inputs:
 
           directory     - the directory that we need a decision about
 
-          current_type  - the type of the parent directory
+          parent_type  - the type of the parent directory
 
         returns one of these:
 
@@ -237,7 +239,8 @@ class FileType:
 
         # check the cache
         if directory in self.__cache.keys():
-            if current_type == 'server-owned-dir':
+            # Check if parent type is recursive
+            if parent_type == 'server-owned-dir':
                 new_type = self.__cache[directory]
                 if new_type == 'config-owned':
                     OUT.die('This version does not support config dirs')
@@ -246,7 +249,8 @@ class FileType:
                 return 'server-owned-dir'
             return self.__cache[directory]
 
-        if current_type == 'server-owned-dir':
+        # Check if parent type is recursive
+        if parent_type == 'server-owned-dir':
             return 'server-owned-dir'
         # unspecified directories are default-owned
         return self.__default_dirs

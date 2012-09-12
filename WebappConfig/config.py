@@ -296,6 +296,7 @@ class Config:
             'wa_installs'       : '${my_persistdir}/${wa_installsbase}',
             'wa_postinstallinfo':
             '${my_appdir}/post-install-instructions.txt',
+            'g_selinux'         : 'no',
             }
 
         # Setup basic defaults
@@ -561,6 +562,14 @@ class Config:
                               ' <NOTE>: Some -s <server> options may not suppo'
                               'rt all values of DEFAULT_DIRS and will report a'
                               'n error')
+
+        inst_opts.add_argument('--selinux-module',
+                               choices = ['yes',
+                                          'no'],
+                               help = 'If activated, webapp-config will use a S'
+                               'ELinux module to set the file context of server'
+                               ' owned files to \'httpd_sys_rw_content_t\'. Def'
+                               'ault is' + self.config.get('USER', 'g_selinux'))
 
 
         #-----------------------------------------------------------------
@@ -906,7 +915,9 @@ class Config:
                             'default_dirs' : 'vhost_config_default_dirs',
                             'pretend'      : 'g_pretend',
                             'verbose'      : 'g_verbose',
-                            'bug_report'   : 'g_bugreport'}
+                            'bug_report'   : 'g_bugreport',
+                            'selinux'      : 'g_selinux',
+                           }
 
         for key in option_to_config:
             if key in options and options[key]:
@@ -1613,7 +1624,9 @@ class Config:
                  'orig'     : self.maybe_get('g_orig_installdir'),
                  'upgrade'  : self.upgrading(),
                  'verbose'  : self.verbose(),
-                 'pretend'  : self.pretend()}
+                 'pretend'  : self.pretend(),
+                 'selinux'  : self.maybe_get('g_selinux') == 'yes',
+                }
 
         return allowed_servers[server](directories,
                                        self.create_permissions(),

@@ -578,8 +578,8 @@ class WebappSource(AppHierarchy):
         '''
         import WebappConfig.filetype
 
-        server_files = []
-        server_dirs  = [] 
+        self.server_files = []
+        self.server_dirs  = [] 
         config_files = []
 
         if os.access(self.appdir() + '/' + config_owned, os.R_OK):
@@ -592,7 +592,7 @@ class WebappSource(AppHierarchy):
 
         if os.access(self.appdir() + '/' + server_owned, os.R_OK):
             flist = open(self.appdir() + '/' + server_owned)
-            server_files = flist.readlines()
+            self.server_files = flist.readlines()
 
             OUT.debug('Identified server-owned files.', 7)
 
@@ -600,15 +600,15 @@ class WebappSource(AppHierarchy):
 
         if os.access(self.appdir() + '/' + server_owned_r, os.R_OK):
             flist = open(self.appdir() + '/' + server_owned_r)
-            server_dirs = flist.readlines()
+            self.server_dirs = flist.readlines()
 
             OUT.debug('Identified server-owned directories.', 7)
 
             flist.close()
 
         self.__types = WebappConfig.filetype.FileType(config_files,
-                                                      server_files,
-                                                      server_dirs,
+                                                      self.server_files,
+                                                      self.server_dirs,
                                                       virtual_files,
                                                       default_dirs)
 

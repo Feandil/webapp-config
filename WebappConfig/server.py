@@ -24,6 +24,7 @@ import os, os.path
 from WebappConfig.debug        import OUT
 from WebappConfig.worker       import WebappRemove, WebappAdd
 from WebappConfig.permissions  import get_group, get_user
+from WebappConfig.selinux      import SELinux
 
 from WebappConfig.wrapper      import package_installed
 
@@ -94,6 +95,11 @@ class Basic:
 
         self.__v         = flags['verbose']
         self.__p         = flags['pretend']
+
+        if flags['selinux']:
+            self.__selinux = SELinux(self.__ws.pn, flags['host'])
+        else:
+            self.__selinux = None
 
         wd = WebappRemove(self.__content,
                           self.__v,
@@ -176,6 +182,11 @@ class Basic:
 
         self.__db.remove(self.__destd)
 
+        # Remove the selinux module
+
+        if self.__selinux is not None:
+            self.__selinux.remove_module()
+
         # did we leave anything behind?
 
         if self.file_behind_flag:
@@ -187,6 +198,13 @@ class Basic:
         self.config_protected_dirs = []
 
         OUT.debug('Basic server install', 7)
+
+        # Create the selinux module
+
+        if self.__selinux is not None:
+            self.__selinux.create_module(self.__ws.pvr, self.__vhostroot,
+                                         self.__ws.server_files,
+                                         self.__ws.server_dirs)
 
         # The root of the virtual install location needs to exist
 

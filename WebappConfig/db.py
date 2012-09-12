@@ -484,21 +484,21 @@ class WebappSource(AppHierarchy):
                                                       virtual_files,
                                                       default_dirs)
 
-    def filetype(self, filename, current_type):
+    def filetype(self, filename, parent_type = ''):
         ''' Determine filetype for the given file.'''
         if self.__types:
 
             OUT.debug('Returning file type', 7)
 
-            return self.__types.filetype(filename, current_type)
+            return self.__types.filetype(filename, parent_type)
 
-    def dirtype(self, directory, current_type):
+    def dirtype(self, directory, parent_type = ''):
         ''' Determine filetype for the given directory.'''
         if self.__types:
 
             OUT.debug('Returning directory type', 7)
 
-            return self.__types.dirtype(directory, current_type)
+            return self.__types.dirtype(directory, parent_type)
 
     def source_exists(self, directory):
         '''

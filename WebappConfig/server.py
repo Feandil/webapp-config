@@ -315,6 +315,11 @@ class Basic:
 
         self.__content.write()
 
+        # Warn the user about needed relabelling
+
+        OUT.warn('You probably need to relabel the new installation, using for'
+                 'example "restorecon -R ' + self.__destd + '"')
+
         # and we're done
 
         OUT.info('Install completed - success', 1)

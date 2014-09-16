@@ -60,11 +60,12 @@ class SELinux:
     def create_module(self, package_version, vhost_root, server_files, server_dirs):
         temp_dir = tempfile.mkdtemp()
         OUT.info('Creating SELinux modules')
+        cleaned_version = re.match(r'(?P<version>[0-9]*\.[0-9]*(?:\.[0-9]*)?)', package_version).group('version')
         for policy in self.policy_types:
             base_dir = os.path.join(temp_dir, policy)
             os.mkdir(base_dir)
             with open(os.path.join(base_dir, '{}.te'.format(self.policy_name)), 'w') as te_file:
-                te_file.write('policy_module({},{})\n'.format(self.policy_name, package_version))
+                te_file.write('policy_module({},{})\n'.format(self.policy_name, cleaned_version))
                 te_file.write('require {\n')
                 te_file.write('  type httpd_sys_rw_content_t;\n')
                 te_file.write('}')
